@@ -25,6 +25,7 @@ async def on_ready():
     )
 
 
+# Sistema Anti-Spam
 @bot.event
 async def on_message(message):
     await check_spam(bot, message)
@@ -32,11 +33,13 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+# Comando /ping
 @bot.tree.command(
     name="ping",
     description="Mostra a latência do Mimi"
 )
 async def ping(interaction: discord.Interaction):
+
     latency = round(bot.latency * 1000)
 
     await interaction.response.send_message(
@@ -46,4 +49,4 @@ async def ping(interaction: discord.Interaction):
 
 TOKEN = os.getenv("TOKEN")
 
-bot.run(TOKEN)
+bot.run(TOKEN))
