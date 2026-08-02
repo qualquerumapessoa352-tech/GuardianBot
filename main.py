@@ -15,7 +15,8 @@ bot = commands.Bot(
 async def on_ready():
     print(f"{bot.user} está online!")
 
-    await bot.tree.sync()
+    comandos = await bot.tree.sync()
+    print(f"{len(comandos)} comandos sincronizados")
 
     await bot.change_presence(
         activity=discord.Game(
