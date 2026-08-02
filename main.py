@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
 import os
+
 from antispam import check_spam
+from logs import log_message_delete, log_message_edit
 
 intents = discord.Intents.all()
 
@@ -26,8 +28,17 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     await check_spam(bot, message)
-
     await bot.process_commands(message)
+
+
+@bot.event
+async def on_message_delete(message):
+    await log_message_delete(message)
+
+
+@bot.event
+async def on_message_edit(before, after):
+    await log_message_edit(before, after)
 
 
 TOKEN = os.getenv("TOKEN")
