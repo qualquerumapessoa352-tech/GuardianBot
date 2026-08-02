@@ -232,14 +232,18 @@ async def log_message_delete(message):
             inline=False
         )
 
-    if message.attachments:
-        files = "\n".join(file.url for file in message.attachments)
+if message.attachments:
+    imagem = message.attachments[0].url
 
-        embed.add_field(
-            name="📎 Attachments",
-            value=files,
-            inline=False
-        )
+    embed.set_image(
+        url=imagem
+    )
+
+    embed.add_field(
+        name="📎 Attachment",
+        value="[Ver imagem apagada](" + imagem + ")",
+        inline=False
+    )
 
     await send_log(message.guild, embed)
 
