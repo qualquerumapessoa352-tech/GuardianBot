@@ -167,7 +167,23 @@ async def log_timeout(
 # KICK
 # ==========================
 
-async def log_kick(
+    embed = create_embed(
+        title="👢 User Kicked",
+        user=user,
+        channel=channel,
+        reason=reason,
+        punishment="Kick",
+        moderator=moderator
+    )
+
+    await send_log(guild, embed)
+
+
+# ==========================
+# BAN
+# ==========================
+
+async def log_ban(
     guild,
     user,
     channel,
@@ -176,7 +192,16 @@ async def log_kick(
 ):
 
     embed = create_embed(
-        title="👢 User
+        title="🔨 User Banned",
+        user=user,
+        color=BAN_COLOR,
+        channel=channel,
+        reason=reason,
+        punishment="Ban",
+        moderator=moderator
+    )
+
+    await send_log(guild, embed, pin=True)
 # ==========================
 # MESSAGE DELETE
 # ==========================
