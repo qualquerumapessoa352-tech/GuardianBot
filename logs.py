@@ -1,31 +1,19 @@
 import discord
 from datetime import datetime
 
+# Mimi purple color
+MIMI_COLOR = discord.Color.from_rgb(155, 89, 182)
 
-async def send_log(
-    guild,
-    title,
-    color,
-    user,
-    channel,
-    punishment,
-    reason,
-    messages=None,
-    pin=False
-):
-    # Procura o canal #logs
-    logs = discord.utils.get(
-        guild.text_channels,
-        name="logs"
-    )
 
-    if logs is None:
-        return
-
+def create_embed(title, user, channel):
     embed = discord.Embed(
         title=title,
-        color=color,
+        color=MIMI_COLOR,
         timestamp=datetime.now()
+    )
+
+    embed.set_author(
+        name="🛡️ Mimi Security"
     )
 
     embed.set_thumbnail(
@@ -46,25 +34,13 @@ async def send_log(
 
     embed.add_field(
         name="🆔 User ID",
-        value=user.id,
+        value=str(user.id),
         inline=True
     )
 
     embed.add_field(
         name="💬 Channel",
         value=channel.mention,
-        inline=False
-    )
-
-    embed.add_field(
-        name="⚖️ Punishment",
-        value=punishment,
-        inline=False
-    )
-
-    embed.add_field(
-        name="📌 Reason",
-        value=reason,
         inline=False
     )
 
@@ -80,26 +56,15 @@ async def send_log(
         inline=True
     )
 
-    if messages:
-
-        text = ""
-
-        for msg in messages:
-            text += f"• {msg}\n"
-
-        embed.add_field(
-            name="📨 Spam Messages",
-            value=text,
-            inline=False
-        )
-
     embed.set_footer(
-        text="🛡️ Mimi Security"
+        text="💜 Mimi Security • Protecting your community"
     )
 
-    sent = await logs.send(
-        embed=embed
-    )
+    return embed
 
-    if pin:
-        await sent.pin()
+
+async def send_embed(guild, embed, pin=False):
+    logs = discord.utils.get(
+        guild.text_channels,
+        name="logs"
+    )
