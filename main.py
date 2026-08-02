@@ -14,6 +14,7 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     print(f"{bot.user} está online!")
+    print("VERSÃO NOVA DO MIMI LIGADA")
 
     await bot.change_presence(
         activity=discord.Game(
