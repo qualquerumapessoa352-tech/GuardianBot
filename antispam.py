@@ -3,6 +3,8 @@ from collections import defaultdict
 from datetime import timedelta
 import time
 
+from logs import send_log
+
 # Store user messages
 spam_messages = defaultdict(list)
 
@@ -31,9 +33,12 @@ async def check_spam(bot, message):
         if now - t <= SPAM_TIME
     ]
 
-    # Check for spam
+    # Not enough messages yet
     if len(spam_messages[user_id]) < SPAM_LIMIT:
         return
+
+    # Save spam messages
+    spam_list = [message.content] * len(spam_messages[user_id])
 
     # Reset counter
     spam_messages[user_id].clear()
@@ -41,15 +46,9 @@ async def check_spam(bot, message):
     # Add warning
     warnings[user_id] += 1
 
-    # Find logs channel
-    logs = discord.utils.get(
-        message.guild.text_channels,
-        name="logs"
-    )
-
     try:
 
-        # First warning
+        # First Warning
         if warnings[user_id] == 1:
 
             await message.author.timeout(
@@ -63,14 +62,18 @@ async def check_spam(bot, message):
                 f"Further spam will result in a **10-minute timeout**."
             )
 
-            if logs:
-                await logs.send(
-                    f"🛡️ **Spam Detected**\n"
-                    f"User: {message.author.mention}\n"
-                    f"Punishment: 5-minute timeout"
-                )
+            await send_log(
+                guild=message.guild,
+                title="🛡️ SPAM DETECTED",
+                color=discord.Color.yellow(),
+                user=message.author,
+                channel=message.channel,
+                punishment="5-minute Timeout",
+                reason="Spam (5 messages in 5 seconds)",
+                messages=spam_list
+            )
 
-        # Second warning
+        # Second Warning
         elif warnings[user_id] == 2:
 
             await message.author.timeout(
@@ -84,14 +87,18 @@ async def check_spam(bot, message):
                 f"🚨 Any further spam will result in an **automatic ban**."
             )
 
-            if logs:
-                await logs.send(
-                    f"⚠️ **Second Warning**\n"
-                    f"User: {message.author.mention}\n"
-                    f"Punishment: 10-minute timeout"
-                )
+            await send_log(
+                guild=message.guild,
+                title="⚠️ SECOND WARNING",
+                color=discord.Color.orange(),
+                user=message.author,
+                channel=message.channel,
+                punishment="10-minute Timeout",
+                reason="Repeated Spam",
+                messages=spam_list
+            )
 
-        # Third warning
+        # Third Warning
         else:
 
             await message.guild.ban(
@@ -103,14 +110,17 @@ async def check_spam(bot, message):
                 f"🚨 {message.author.mention} has been **automatically banned** for repeated spam."
             )
 
-            if logs:
-                log = await logs.send(
-                    f"🚨 **AUTOMATIC BAN**\n"
-                    f"User: {message.author.mention}\n"
-                    f"Reason: Repeated Spam"
-                )
-
-                await log.pin()
+            await send_log(
+                guild=message.guild,
+                title="🚨 AUTOMATIC BAN",
+                color=discord.Color.red(),
+                user=message.author,
+                channel=message.channel,
+                punishment="Automatic Ban",
+                reason="Repeated Spam",
+                messages=spam_list,
+                pin=True
+            )
 
     except discord.Forbidden:
         print("Mimi doesn't have permission to punish this user.")
