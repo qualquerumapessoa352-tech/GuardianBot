@@ -3,95 +3,66 @@ from collections import defaultdict
 from datetime import timedelta
 import time
 
-# Guarda as mensagens de cada utilizador
+# Store user messages
 spam_messages = defaultdict(list)
 
-# Guarda o número de infrações
+# Store warnings
 warnings = defaultdict(int)
 
-# Configurações
+# Settings
 SPAM_LIMIT = 5
 SPAM_TIME = 5
 
 
 async def check_spam(bot, message):
-    # Ignora bots
+    # Ignore bots
     if message.author.bot:
         return
 
     now = time.time()
     user_id = message.author.id
 
-    # Guarda o momento da mensagem
+    # Save message time
     spam_messages[user_id].append(now)
 
-    # Remove mensagens antigas
+    # Remove old messages
     spam_messages[user_id] = [
         t for t in spam_messages[user_id]
         if now - t <= SPAM_TIME
     ]
 
-    # Verifica spam
+    # Not enough messages for spam
     if len(spam_messages[user_id]) < SPAM_LIMIT:
         return
 
-    # Limpa a lista para não repetir imediatamente
+    # Reset message counter
     spam_messages[user_id].clear()
 
+    # Add warning
     warnings[user_id] += 1
 
-    # Procura o canal "logs"
-    logs = discord.utils.get(message.guild.text_channels, name="logs")
+    # Find logs channel
+    logs = discord.utils.get(
+        message.guild.text_channels,
+        name="logs"
+    )
 
     try:
+
+        # First warning
         if warnings[user_id] == 1:
+
             await message.author.timeout(
                 timedelta(minutes=5),
                 reason="Spam"
             )
 
             await message.channel.send(
-                f"⚠️ {message.author.mention} recebeu um **timeout de 5 minutos** por spam."
+                f"⚠️ {message.author.mention} received a **5-minute timeout** for spamming.\n\n"
+                f"📌 **First Warning**\n"
+                f"Further spam will result in a **10-minute timeout**."
             )
 
             if logs:
                 await logs.send(
-                    f"🛡️ {message.author} recebeu timeout de 5 minutos por spam."
-                )
-
-        elif warnings[user_id] == 2:
-            await message.author.timeout(
-                timedelta(minutes=10),
-                reason="Spam repetido"
-            )
-
-            await message.channel.send(
-                f"⚠️ {message.author.mention} recebeu um **timeout de 10 minutos** por spam."
-            )
-
-            if logs:
-                await logs.send(
-                    f"⚠️ {message.author} recebeu timeout de 10 minutos."
-                )
-
-        else:
-            await message.guild.ban(
-                message.author,
-                reason="Spam repetido"
-            )
-
-            await message.channel.send(
-                f"🚨 {message.author.mention} foi **banido automaticamente** por spam."
-            )
-
-            if logs:
-                log = await logs.send(
-                    f"🚨 **BAN AUTOMÁTICO**\nUtilizador: {message.author}"
-                )
-                await log.pin()
-
-    except discord.Forbidden:
-        print("O Mimi não tem permissão para aplicar a punição.")
-
-    except Exception as erro:
-        print(f"Erro no Anti-Spam: {erro}")
+                    f"🛡️ **Spam Det
