@@ -162,10 +162,17 @@ async def log_timeout(
 
     await send_log(guild, embed)
 
-
-# ==========================
+# =========================
 # KICK
-# ==========================
+# =========================
+
+async def log_kick(
+    guild,
+    user,
+    channel,
+    reason,
+    moderator
+):
 
     embed = create_embed(
         title="👢 User Kicked",
