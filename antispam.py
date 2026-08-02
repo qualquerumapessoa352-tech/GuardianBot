@@ -31,11 +31,11 @@ async def check_spam(bot, message):
         if now - t <= SPAM_TIME
     ]
 
-    # Not enough messages for spam
+    # Check for spam
     if len(spam_messages[user_id]) < SPAM_LIMIT:
         return
 
-    # Reset message counter
+    # Reset counter
     spam_messages[user_id].clear()
 
     # Add warning
@@ -65,4 +65,55 @@ async def check_spam(bot, message):
 
             if logs:
                 await logs.send(
-                    f"🛡️ **Spam Det
+                    f"🛡️ **Spam Detected**\n"
+                    f"User: {message.author.mention}\n"
+                    f"Punishment: 5-minute timeout"
+                )
+
+        # Second warning
+        elif warnings[user_id] == 2:
+
+            await message.author.timeout(
+                timedelta(minutes=10),
+                reason="Repeated Spam"
+            )
+
+            await message.channel.send(
+                f"⚠️ {message.author.mention} received a **10-minute timeout** for spamming.\n\n"
+                f"📌 **Second Warning**\n"
+                f"🚨 Any further spam will result in an **automatic ban**."
+            )
+
+            if logs:
+                await logs.send(
+                    f"⚠️ **Second Warning**\n"
+                    f"User: {message.author.mention}\n"
+                    f"Punishment: 10-minute timeout"
+                )
+
+        # Third warning
+        else:
+
+            await message.guild.ban(
+                message.author,
+                reason="Repeated Spam"
+            )
+
+            await message.channel.send(
+                f"🚨 {message.author.mention} has been **automatically banned** for repeated spam."
+            )
+
+            if logs:
+                log = await logs.send(
+                    f"🚨 **AUTOMATIC BAN**\n"
+                    f"User: {message.author.mention}\n"
+                    f"Reason: Repeated Spam"
+                )
+
+                await log.pin()
+
+    except discord.Forbidden:
+        print("Mimi doesn't have permission to punish this user.")
+
+    except Exception as error:
+        print(f"Anti-Spam Error: {error}")
