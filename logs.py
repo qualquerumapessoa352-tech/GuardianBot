@@ -2,14 +2,14 @@ import discord
 from datetime import datetime
 
 # ==========================
-# COLORS
+# CORES
 # ==========================
 
-DEFAULT_COLOR = discord.Color.from_rgb(155, 89, 182)  # Purple
+DEFAULT_COLOR = discord.Color.from_rgb(155, 89, 182)
 BAN_COLOR = discord.Color.red()
 
 # ==========================
-# LOG CHANNEL
+# CANAL DE LOGS
 # ==========================
 
 def get_logs_channel(guild):
@@ -17,7 +17,7 @@ def get_logs_channel(guild):
 
 
 # ==========================
-# SEND EMBED
+# ENVIAR EMBED
 # ==========================
 
 async def send_log(guild, embed, pin=False):
@@ -26,29 +26,28 @@ async def send_log(guild, embed, pin=False):
     if channel is None:
         return
 
-    message = await channel.send(embed=embed)
+    msg = await channel.send(embed=embed)
 
     if pin:
         try:
-            await message.pin(reason="Automatic ban log")
+            await msg.pin(reason="Automatic Ban Log")
         except:
             pass
 
 
 # ==========================
-# BASE EMBED
+# EMBED BASE
 # ==========================
 
 def create_embed(
     title,
     user,
-    channel=None,
     *,
     color=DEFAULT_COLOR,
+    channel=None,
     reason=None,
     punishment=None,
-    moderator=None,
-    messages=None
+    moderator=None
 ):
 
     embed = discord.Embed(
@@ -57,9 +56,7 @@ def create_embed(
         timestamp=datetime.now()
     )
 
-    embed.set_author(
-        name="🛡️ Mimi Security"
-    )
+    embed.set_author(name="🛡️ Mimi Security")
 
     embed.set_thumbnail(
         url=user.display_avatar.url
@@ -79,11 +76,11 @@ def create_embed(
 
     embed.add_field(
         name="🆔 User ID",
-        value=str(user.id),
+        value=user.id,
         inline=True
     )
 
-    if channel is not None:
+    if channel:
         embed.add_field(
             name="💬 Channel",
             value=channel.mention,
@@ -111,45 +108,14 @@ def create_embed(
             inline=False
         )
 
-    if messages:
-
-        text = ""
-
-        for msg in messages:
-            if len(text + msg + "\n") > 1000:
-                break
-            text += msg + "\n"
-
-        if text == "":
-            text = "No messages recorded."
-
-        embed.add_field(
-            name="💬 Messages",
-            value=f"```{text}```",
-            inline=False
-        )
-
-    embed.add_field(
-        name="📅 Date",
-        value=datetime.now().strftime("%d/%m/%Y"),
-        inline=True
-    )
-
-    embed.add_field(
-        name="🕒 Time",
-        value=datetime.now().strftime("%H:%M:%S"),
-        inline=True
-    )
-
     embed.set_footer(
-        text="💜 Mimi Security • Protecting your community"
+        text="💜 Mimi Security"
     )
 
     return embed
 
-
 # ==========================
-# WARNING LOG
+# WARNING
 # ==========================
 
 async def log_warning(
@@ -157,7 +123,6 @@ async def log_warning(
     user,
     channel,
     reason,
-    messages=None,
     moderator="🤖 Mimi Security"
 ):
 
@@ -167,15 +132,14 @@ async def log_warning(
         channel=channel,
         reason=reason,
         punishment="Warning",
-        moderator=moderator,
-        messages=messages
+        moderator=moderator
     )
 
     await send_log(guild, embed)
 
 
 # ==========================
-# TIMEOUT LOG
+# TIMEOUT
 # ==========================
 
 async def log_timeout(
@@ -184,7 +148,6 @@ async def log_timeout(
     channel,
     duration,
     reason,
-    messages=None,
     moderator="🤖 Mimi Security"
 ):
 
@@ -194,15 +157,14 @@ async def log_timeout(
         channel=channel,
         reason=reason,
         punishment=f"Timeout ({duration})",
-        moderator=moderator,
-        messages=messages
+        moderator=moderator
     )
 
     await send_log(guild, embed)
 
 
 # ==========================
-# KICK LOG
+# KICK
 # ==========================
 
 async def log_kick(
@@ -210,55 +172,13 @@ async def log_kick(
     user,
     channel,
     reason,
-    moderator,
-    messages=None
+    moderator
 ):
 
     embed = create_embed(
-        title="👢 User Kicked",
-        user=user,
-        channel=channel,
-        reason=reason,
-        punishment="Kick",
-        moderator=moderator,
-        messages=messages
-    )
-
-    await send_log(guild, embed)
-
-
+        title="👢 User
 # ==========================
-# BAN LOG
-# ==========================
-
-async def log_ban(
-    guild,
-    user,
-    channel,
-    reason,
-    moderator,
-    messages=None
-):
-
-    embed = create_embed(
-        title="🔨 User Banned",
-        user=user,
-        channel=channel,
-        color=BAN_COLOR,
-        reason=reason,
-        punishment="Ban",
-        moderator=moderator,
-        messages=messages
-    )
-
-    await send_log(
-        guild,
-        embed,
-        pin=True
-    )
-
-# ==========================
-# MESSAGE DELETE LOG
+# MESSAGE DELETE
 # ==========================
 
 async def log_message_delete(message):
@@ -275,13 +195,14 @@ async def log_message_delete(message):
 
     if message.content:
         embed.add_field(
-            name="💬 Deleted Message",
+            name="💬 Message",
             value=f"```{message.content[:1000]}```",
             inline=False
         )
 
     if message.attachments:
-        files = "\n".join(a.url for a in message.attachments)
+        files = "\n".join(file.url for file in message.attachments)
+
         embed.add_field(
             name="📎 Attachments",
             value=files,
@@ -292,7 +213,7 @@ async def log_message_delete(message):
 
 
 # ==========================
-# MESSAGE EDIT LOG
+# MESSAGE EDIT
 # ==========================
 
 async def log_message_edit(before, after):
@@ -312,50 +233,21 @@ async def log_message_edit(before, after):
 
     embed.add_field(
         name="📝 Before",
-        value=f"```{before.content[:900] or 'Empty'}```",
+        value=f"```{before.content[:1000] or 'Empty'}```",
         inline=False
     )
 
     embed.add_field(
         name="📝 After",
-        value=f"```{after.content[:900] or 'Empty'}```",
+        value=f"```{after.content[:1000] or 'Empty'}```",
         inline=False
     )
 
     embed.add_field(
-        name="🔗 Message",
-        value=f"[Jump to Message]({after.jump_url})",
+        name="🔗 Jump",
+        value=f"[Open Message]({after.jump_url})",
         inline=False
     )
 
     await send_log(before.guild, embed)
-
-
-# ==========================
-# MEMBER JOIN
-# ==========================
-
-async def log_member_join(member):
-
-    embed = create_embed(
-        title="📥 Member Joined",
-        user=member,
-        reason="Member joined the server"
-    )
-
-    await send_log(member.guild, embed)
-
-
-# ==========================
-# MEMBER LEAVE
-# ==========================
-
-async def log_member_leave(member):
-
-    embed = create_embed(
-        title="📤 Member Left",
-        user=member,
-        reason="Member left the server"
-    )
-
-    await send_log(member.guild, embed)
+        
