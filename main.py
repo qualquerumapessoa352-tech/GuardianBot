@@ -5,14 +5,20 @@ from antispam import check_spam
 
 intents = discord.Intents.all()
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(
+    command_prefix="!",
+    intents=intents
+)
 
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} está online!")
+    
     await bot.change_presence(
-        activity=discord.Game(name="🛡️ Protegendo o servidor")
+        activity=discord.Game(
+            name="🛡️ Protegendo o servidor"
+        )
     )
 
 
@@ -23,4 +29,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.getenv("TOKEN"))
+TOKEN = os.getenv("TOKEN")
+
+bot.run(TOKEN)
