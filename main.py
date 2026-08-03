@@ -3,8 +3,14 @@ from discord.ext import commands
 import os
 
 from antispam import check_spam
-from logs import log_message_delete, log_message_edit, log_ban
-
+from logs import (
+    log_message_delete,
+    log_message_edit,
+    log_ban,
+    log_channel_delete,
+    log_channel_create,
+    log_channel_update
+)
 
 intents = discord.Intents.all()
 
@@ -28,9 +34,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-
     await check_spam(bot, message)
-
     await bot.process_commands(message)
 
 
@@ -53,6 +57,21 @@ async def on_member_ban(guild, user):
         "Banimento automático",
         "🤖 Mimi Security"
     )
+
+
+@bot.event
+async def on_guild_channel_delete(channel):
+    await log_channel_delete(channel)
+
+
+@bot.event
+async def on_guild_channel_create(channel):
+    await log_channel_create(channel)
+
+
+@bot.event
+async def on_guild_channel_update(before, after):
+    await log_channel_update(before, after)
 
 
 TOKEN = os.getenv("TOKEN")
