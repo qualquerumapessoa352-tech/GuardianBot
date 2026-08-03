@@ -163,7 +163,7 @@ async def log_timeout(
 
     embed.add_field(
         name="💬 Message",
-        value=f"```{message[:1000]}```",
+        value=f"```{message[:1000] or 'No message'}```",
         inline=False
     )
 
