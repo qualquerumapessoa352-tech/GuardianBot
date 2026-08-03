@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 
 from antispam import check_spam
+
 from logs import (
     log_message_delete,
     log_message_edit,
@@ -11,6 +12,9 @@ from logs import (
     log_channel_create,
     log_channel_update
 )
+
+from tickets import setup as setup_tickets
+
 
 intents = discord.Intents.all()
 
@@ -22,8 +26,13 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
+
     print(f"{bot.user} está online!")
     print("VERSÃO NOVA DO MIMI LIGADA")
+
+    if not hasattr(bot, "tickets_loaded"):
+        await setup_tickets(bot)
+        bot.tickets_loaded = True
 
     await bot.change_presence(
         activity=discord.Game(
@@ -34,7 +43,9 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+
     await check_spam(bot, message)
+
     await bot.process_commands(message)
 
 
@@ -50,6 +61,7 @@ async def on_message_edit(before, after):
 
 @bot.event
 async def on_member_ban(guild, user):
+
     await log_ban(
         guild,
         user,
