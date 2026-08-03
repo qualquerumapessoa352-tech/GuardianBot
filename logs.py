@@ -446,7 +446,6 @@ async def log_channel_create(channel):
 # CHANNEL EDIT
 # ==========================
 
-async def log_channel_update(before, after):
 
     if before.name == after.name:
         return
