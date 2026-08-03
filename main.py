@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 
 from antispam import check_spam
+from antilinks import check_links
 
 from logs import (
     log_message_delete,
@@ -45,6 +46,7 @@ async def on_ready():
 async def on_message(message):
 
     await check_spam(bot, message)
+    await check_links(message)
 
     await bot.process_commands(message)
 
