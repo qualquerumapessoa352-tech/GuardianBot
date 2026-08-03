@@ -148,6 +148,7 @@ async def log_timeout(
     channel,
     duration,
     reason,
+    message,
     moderator="🤖 Mimi Security"
 ):
 
@@ -158,6 +159,12 @@ async def log_timeout(
         reason=reason,
         punishment=f"Timeout ({duration})",
         moderator=moderator
+    )
+
+    embed.add_field(
+        name="💬 Message",
+        value=f"```{message[:1000]}```",
+        inline=False
     )
 
     await send_log(guild, embed)
