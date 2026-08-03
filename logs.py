@@ -345,49 +345,6 @@ async def log_channel_delete(channel):
 
     await send_log(channel.guild, embed)
 
-# ==========================
-# CHANNEL UPDATE
-# ==========================
-
-async def log_channel_update(before, after):
-
-    if before.name == after.name:
-        return
-
-    embed = discord.Embed(
-        title="✏️ Channel Edited",
-        color=DEFAULT_COLOR,
-        timestamp=datetime.now()
-    )
-
-    embed.set_author(
-        name="🛡️ Mimi Security"
-    )
-
-    embed.add_field(
-        name="📁 Before",
-        value=before.name,
-        inline=False
-    )
-
-    embed.add_field(
-        name="📁 After",
-        value=after.name,
-        inline=False
-    )
-
-    embed.add_field(
-        name="🆔 Channel ID",
-        value=after.id,
-        inline=False
-    )
-
-    embed.set_footer(
-        text="💜 Mimi Security"
-    )
-
-    await send_log(after.guild, embed)
-
 
 # ==========================
 # CHANNEL EDIT
