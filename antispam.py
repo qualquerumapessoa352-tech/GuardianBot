@@ -3,7 +3,7 @@ from collections import defaultdict
 from datetime import timedelta
 import time
 
-from logs import send_log
+from logs import log_timeout, log_ban
 
 # Store user messages
 spam_messages = defaultdict(list)
