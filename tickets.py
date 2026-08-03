@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+import asyncio
 
 TICKET_CATEGORY = "Tickets"
 
@@ -70,6 +70,12 @@ class CloseTicketView(discord.ui.View):
         custom_id="close_ticket"
     )
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        await interaction.response.send_message(
+            "🔒 Ticket fechado. Este canal será apagado em **24 horas**."
+        )
+
+        await asyncio.sleep(86400)
 
         await interaction.channel.delete()
 
