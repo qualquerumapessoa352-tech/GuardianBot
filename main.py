@@ -15,7 +15,7 @@ from logs import (
 )
 
 from tickets import setup as setup_tickets
-
+from support import SupportView
 
 intents = discord.Intents.all()
 
@@ -24,12 +24,13 @@ bot = commands.Bot(
     intents=intents
 )
 
-
 @bot.event
 async def on_ready():
-
     print(f"{bot.user} está online!")
     print("VERSÃO NOVA DO MIMI LIGADA")
+
+    # Garante que os botões do suporte continuem funcionando após reinicializações
+    bot.add_view(SupportView())
 
     if not hasattr(bot, "tickets_loaded"):
         await setup_tickets(bot)
@@ -41,52 +42,42 @@ async def on_ready():
         )
     )
 
-
 @bot.event
 async def on_message(message):
-
     await check_spam(bot, message)
     await check_links(message)
 
     await bot.process_commands(message)
 
-
 @bot.event
 async def on_message_delete(message):
     await log_message_delete(message)
-
 
 @bot.event
 async def on_message_edit(before, after):
     await log_message_edit(before, after)
 
-
 @bot.event
 async def on_member_ban(guild, user):
-
     await log_ban(
         guild,
         user,
         None,
         "Banimento automático",
-        "🤖 Mimi Security"
+        "🛡️ Mimi Security"
     )
-
 
 @bot.event
 async def on_guild_channel_delete(channel):
     await log_channel_delete(channel)
 
-
 @bot.event
 async def on_guild_channel_create(channel):
     await log_channel_create(channel)
 
-
 @bot.event
 async def on_guild_channel_update(before, after):
     await log_channel_update(before, after)
-
 
 TOKEN = os.getenv("TOKEN")
 
