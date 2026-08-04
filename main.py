@@ -15,7 +15,7 @@ from logs import (
 )
 
 from tickets import setup as setup_tickets
-from support import SupportView
+from support import SupportView, SupportCog
 
 intents = discord.Intents.all()
 
@@ -28,6 +28,10 @@ bot = commands.Bot(
 async def on_ready():
     print(f"{bot.user} está online!")
     print("VERSÃO NOVA DO MIMI LIGADA")
+
+    # Registra a Cog do suporte no bot
+    if not bot.get_cog("SupportCog"):
+        await bot.add_cog(SupportCog(bot))
 
     # Garante que os botões do suporte continuem funcionando após reinicializações
     bot.add_view(SupportView())
