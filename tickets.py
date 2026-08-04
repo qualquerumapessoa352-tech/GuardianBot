@@ -19,17 +19,34 @@ class TicketView(discord.ui.View):
         guild = interaction.guild
         user = interaction.user
 
-        category = discord.utils.get(
-            guild.categories,
-            name=TICKET_CATEGORY
-        )
+        category = discord.utils.get(guild.categories, name=TICKET_CATEGORY)
 
         if category is None:
             category = await guild.create_category(TICKET_CATEGORY)
 
+        ticket_name = f"ticket-{user.name.lower().replace(' ', '-')}"
+
+        # Check if the user already has an open ticket
+        existing = discord.utils.get(
+            category.text_channels,
+            name=ticket_name
+        )
+
+        if existing:
+            await interaction.response.send_message(
+                f"❌ You already have an open ticket: {existing.mention}",
+                ephemeral=True
+            )
+            return
+
         channel = await guild.create_text_channel(
-            name=f"ticket-{user.name}",
+            name=ticket_name,
             category=category
+        )
+
+        await channel.set_permissions(
+            guild.default_role,
+            read_messages=False
         )
 
         await channel.set_permissions(
@@ -38,16 +55,17 @@ class TicketView(discord.ui.View):
             send_messages=True
         )
 
-        await channel.set_permissions(
-            guild.default_role,
-            read_messages=False
-        )
-
         embed = discord.Embed(
             title="🎫 Ticket Created",
-            description="Please explain your issue. Our staff will assist you shortly.",
+            description=(
+                f"Welcome {user.mention}!\n\n"
+                "Please explain your issue.\n"
+                "A staff member will assist you shortly."
+            ),
             color=discord.Color.purple()
         )
+
+        embed.set_footer(text="💜 Mimi Security")
 
         await channel.send(
             embed=embed,
@@ -83,38 +101,15 @@ class CloseTicketView(discord.ui.View):
 async def setup(bot):
 
     @bot.command()
-    async def support(ctx):
-
-        embed = discord.Embed(
-            title="🛡️ SUPPORT CENTER",
-            description=(
-                "Need help from our staff?\n\n"
-                "• Support\n"
-                "• Reports\n"
-                "• Partnerships\n"
-                "• Purchases\n\n"
-                "Click the button below to create a private support ticket."
-            ),
-            color=discord.Color.purple()
-        )
-
-        embed.set_footer(
-            text="💜 Mimi Security"
-        )
-
-        await ctx.send(
-            embed=embed,
-            view=TicketView()
-        )
-
-    @bot.command()
     async def ticket(ctx):
 
         embed = discord.Embed(
-            title="🎫 Ticket System",
+            title="🎫 TICKET SYSTEM",
             description="Click the button below to create a ticket.",
             color=discord.Color.purple()
         )
+
+        embed.set_footer(text="💜 Mimi Security")
 
         await ctx.send(
             embed=embed,
