@@ -1,7 +1,6 @@
-
 import discord
 from discord.ext import commands
-from discord import app_commands
+
 
 class SupportSelect(discord.ui.Select):
     def __init__(self):
@@ -25,79 +24,134 @@ class SupportSelect(discord.ui.Select):
                 emoji="👑"
             )
         ]
+
         super().__init__(
             placeholder="Select the ideal department here...",
             min_values=1,
             max_values=1,
+            options=options,
             custom_id="mimi_support_select"
         )
 
     async def callback(self, interaction: discord.Interaction):
+
         category_name = "General Support"
+
         if self.values[0] == "ticket_partnerships":
             category_name = "Partnerships"
+
         elif self.values[0] == "ticket_recruitment":
             category_name = "Recruitment"
 
+
         guild = interaction.guild
         user = interaction.user
+
         channel_name = f"ticket-{user.name.lower()}"
 
-        existing_channel = discord.utils.get(guild.text_channels, name=channel_name)
+
+        existing_channel = discord.utils.get(
+            guild.text_channels,
+            name=channel_name
+        )
+
         if existing_channel:
-            return await interaction.response.send_message(
-                f"You already have an open ticket channel: {existing_channel.mention}",
+            await interaction.response.send_message(
+                f"You already have an open ticket: {existing_channel.mention}",
                 ephemeral=True
             )
+            return
+
 
         overwrites = {
-            guild.default_role: discord.PermissionOverwrite(read_messages=False),
-            user: discord.PermissionOverwrite(read_messages=True, send_messages=True, read_message_history=True),
-            guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            guild.default_role: discord.PermissionOverwrite(
+                read_messages=False
+            ),
+
+            user: discord.PermissionOverwrite(
+                read_messages=True,
+                send_messages=True,
+                read_message_history=True
+            ),
+
+            guild.me: discord.PermissionOverwrite(
+                read_messages=True,
+                send_messages=True
+            )
         }
+
 
         ticket_channel = await guild.create_text_channel(
             name=channel_name,
             overwrites=overwrites
         )
 
-        ticket_embed = discord.Embed(
+
+        embed = discord.Embed(
             title=f"🎫 Mimi Support — {category_name}",
-            description=f"Hello {user.mention}, welcome! Please explain your issue or request below. A staff member will assist you shortly.",
+            description=(
+                f"Hello {user.mention}!\n\n"
+                "Welcome to support.\n"
+                "Please explain your problem or request below.\n"
+                "A staff member will assist you soon."
+            ),
             color=discord.Color.blue()
         )
-        await ticket_channel.send(content=user.mention, embed=ticket_embed)
+
+
+        await ticket_channel.send(
+            content=user.mention,
+            embed=embed
+        )
+
 
         await interaction.response.send_message(
-            f"Your ticket channel has been created: {ticket_channel.mention}",
+            f"Your ticket has been created: {ticket_channel.mention}",
             ephemeral=True
         )
+
+
 
 class SupportView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(SupportSelect())
 
+
+
 class SupportCog(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
+
 
     @commands.command(name="setup-support")
     @commands.has_permissions(administrator=True)
     async def setup_support(self, ctx):
+
         embed = discord.Embed(
             title="✨ SUPPORT & HELP CENTER",
             description=(
                 "Need to speak with our staff team or open a formal request?\n\n"
-                "**Questions, Partnerships, Reports, or Purchases**\n"
-                "Select the desired department below. A private ticket channel will be created exclusively to handle your request individually."
+                "**Questions, Partnerships, Reports, or Purchases**\n\n"
+                "Select the department below and a private ticket will be created."
             ),
             color=discord.Color.blue()
         )
-        embed.set_footer(text="Support available 24/7 • Mimi Bot")
 
-        view = SupportView()
-        await ctx.send(embed=embed, view=view)
+
+        embed.set_footer(
+            text="Support available 24/7 • Mimi Bot"
+        )
+
+
+        await ctx.send(
+            embed=embed,
+            view=SupportView()
+        )
+
+
 
 async def setup(bot):
     await bot.add_cog(SupportCog(bot))
+    bot.add_view(SupportView())
