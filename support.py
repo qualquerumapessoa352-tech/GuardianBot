@@ -43,7 +43,6 @@ class SupportSelect(discord.ui.Select):
         user = interaction.user
         channel_name = f"ticket-{user.name.lower()}"
 
-        # Verifica se o usuário já tem um ticket aberto
         existing_channel = discord.utils.get(guild.text_channels, name=channel_name)
         if existing_channel:
             return await interaction.response.send_message(
@@ -51,7 +50,6 @@ class SupportSelect(discord.ui.Select):
                 ephemeral=True
             )
 
-        # Configura as permissões do canal privado
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(read_messages=False),
             user: discord.PermissionOverwrite(read_messages=True, send_messages=True, read_message_history=True),
