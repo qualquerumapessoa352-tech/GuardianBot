@@ -10,7 +10,7 @@ class TicketView(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(
-        label="🎫 Criar Ticket",
+        label="🎫 Create Ticket",
         style=discord.ButtonStyle.green,
         custom_id="create_ticket"
     )
@@ -44,8 +44,8 @@ class TicketView(discord.ui.View):
         )
 
         embed = discord.Embed(
-            title="🎫 Ticket Criado",
-            description="Explique o seu problema. A staff irá responder em breve.",
+            title="🎫 Ticket Created",
+            description="Please explain your issue. Our staff will assist you shortly.",
             color=discord.Color.purple()
         )
 
@@ -55,7 +55,7 @@ class TicketView(discord.ui.View):
         )
 
         await interaction.response.send_message(
-            f"✅ Ticket criado: {channel.mention}",
+            f"✅ Ticket created: {channel.mention}",
             ephemeral=True
         )
 
@@ -65,16 +65,61 @@ class CloseTicketView(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(
-        label="🔒 Fechar Ticket",
+        label="🔒 Close Ticket",
         style=discord.ButtonStyle.red,
         custom_id="close_ticket"
     )
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
 
         await interaction.response.send_message(
-            "🔒 Ticket fechado. Este canal será apagado em **24 horas**."
+            "🔒 Ticket closed. This channel will be deleted in **24 hours**."
         )
 
+        await asyncio.sleep(86400)
+
+        await interaction.channel.delete()
+
+
+async def setup(bot):
+
+    @bot.command()
+    async def support(ctx):
+
+        embed = discord.Embed(
+            title="🛡️ SUPPORT CENTER",
+            description=(
+                "Need help from our staff?\n\n"
+                "• Support\n"
+                "• Reports\n"
+                "• Partnerships\n"
+                "• Purchases\n\n"
+                "Click the button below to create a private support ticket."
+            ),
+            color=discord.Color.purple()
+        )
+
+        embed.set_footer(
+            text="💜 Mimi Security"
+        )
+
+        await ctx.send(
+            embed=embed,
+            view=TicketView()
+        )
+
+    @bot.command()
+    async def ticket(ctx):
+
+        embed = discord.Embed(
+            title="🎫 Ticket System",
+            description="Click the button below to create a ticket.",
+            color=discord.Color.purple()
+        )
+
+        await ctx.send(
+            embed=embed,
+            view=TicketView()
+        )
         await asyncio.sleep(86400)
 
         await interaction.channel.delete()
