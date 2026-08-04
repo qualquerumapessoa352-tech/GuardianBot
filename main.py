@@ -15,21 +15,26 @@ from logs import (
 )
 
 from tickets import setup as setup_tickets
-from support import SupportView # Importamos apenas a View visual do menu
+from support import SupportView
 
 intents = discord.Intents.all()
 
-bot = commands.Bot(
-    command_prefix="!",
-    intents=intents
-)
+class MimiBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="!", intents=intents)
+
+    async def setup_hook(self):
+        # O cérebro carrega o ficheiro support.py como extensão/cog antes de ligar
+        await self.load_extension("support")
+
+bot = MimiBot()
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} está online!")
     print("VERSÃO NOVA DO MIMI LIGADA")
 
-    # Garante que os botões do suporte continuem funcionando após reinicializações
+    # Registra os botões do suporte para manter persitência após restarts
     bot.add_view(SupportView())
 
     if not hasattr(bot, "tickets_loaded"):
@@ -42,34 +47,14 @@ async def on_ready():
         )
     )
 
-# --- COMANDO DO PAINEL DE SUPORTE NOVO ---
-@bot.command(name="setup-support", aliases=["support", "suporte"])
-@commands.has_permissions(administrator=True)
-async def setup_support_cmd(ctx):
-    embed = discord.Embed(
-        title="✨ SUPPORT & HELP CENTER",
-        description=(
-            "Need to speak with our staff team or open a formal request?\n\n"
-            "**Questions, Partnerships, Reports, or Purchases**\n"
-            "Select the desired department below. A private ticket channel will be created exclusively to handle your request individually."
-        ),
-        color=discord.Color.blue()
-    )
-    embed.set_footer(text="Support available 24/7 • Mimi Bot")
-    
-    view = SupportView()
-    await ctx.send(embed=embed, view=view)
-
 @bot.event
 async def on_message(message):
-    # Ignora mensagens de outros bots para não dar erro
     if message.author.bot:
         return
 
     await check_spam(bot, message)
     await check_links(message)
 
-    # Processa os comandos (isso faz o !setup-support e o !ticket funcionarem)
     await bot.process_commands(message)
 
 @bot.event
