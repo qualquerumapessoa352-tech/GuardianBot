@@ -120,23 +120,3 @@ async def setup(bot):
             embed=embed,
             view=TicketView()
         )
-        await asyncio.sleep(86400)
-
-        await interaction.channel.delete()
-
-
-async def setup(bot):
-
-    @bot.command()
-    async def ticket(ctx):
-
-        embed = discord.Embed(
-            title="🎫 Sistema de Tickets",
-            description="Clique no botão para abrir um ticket.",
-            color=discord.Color.purple()
-        )
-
-        await ctx.send(
-            embed=embed,
-            view=TicketView()
-        )
