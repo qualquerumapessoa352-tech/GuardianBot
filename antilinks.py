@@ -9,7 +9,9 @@ ALLOWED_LINKS = [
     "tiktok.com",
     "vm.tiktok.com",
     "instagram.com",
-    "www.instagram.com"
+    "www.instagram.com", 
+    "discord.gg",
+    "discord.com/invite"
 ]
 
 LINK_REGEX = r"https?://[^\s]+|www\.[^\s]+"
